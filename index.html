@@ -405,14 +405,14 @@
 
 <div class="wrap">
   <div class="progress" id="progress" aria-hidden="true">
-    <span class="p">♥</span><span class="p">♥</span><span class="p">♥</span><span class="p">♥</span><span class="p">♥</span><span class="p">♥</span>
+    <span class="p">♥</span><span class="p">♥</span><span class="p">♥</span><span class="p">♥</span><span class="p">♥</span>
   </div>
 
   <!-- STEG 0: frågan -->
   <section class="step ask active" id="step-ask">
     <p class="big-heart">💘</p>
     <p class="eyebrow">Isak har en fråga</p>
-    <h1>Vill du gå ut<br>med mig?</h1>
+    <h1>Vill du gå ut<br>med mig<span id="who"></span>?</h1>
     <div class="answers" id="answers">
       <button type="button" class="btn-ja" id="ja">Ja! 🥰</button>
       <button type="button" class="btn-nej" id="nej">Nej</button>
@@ -420,21 +420,10 @@
     <p class="nej-taunt" id="taunt"></p>
   </section>
 
-  <!-- STEG 1: namn -->
-  <section class="step panel" id="step-name">
-    <h2>Visste väl det 😏</h2>
-    <p class="hint">Vem har jag glädjen att gå ut med?</p>
-    <input type="text" id="name" placeholder="Ditt namn" autocomplete="off" maxlength="40">
-    <div class="nav">
-      <span></span>
-      <button type="button" class="btn-next" data-next>Nästa</button>
-    </div>
-  </section>
-
-  <!-- STEG 2: dagar -->
+  <!-- STEG 1: dagar -->
   <section class="step panel" id="step-days">
-    <h2>När är du ledig kommande vecka?</h2>
-    <p class="hint">Välj alla dagar som funkar.</p>
+    <h2>Visste väl det 😏</h2>
+    <p class="hint">När är du ledig kommande vecka? Välj alla dagar som funkar.</p>
     <div class="chips" id="days"></div>
     <div class="nav">
       <button type="button" class="btn-back" data-back>‹ Tillbaka</button>
@@ -530,7 +519,15 @@
   }
 
   /* --- funnel steps --- */
-  var STEPS = ["step-ask", "step-name", "step-days", "step-times", "step-vibes", "step-msg", "step-done"];
+  var STEPS = ["step-ask", "step-days", "step-times", "step-vibes", "step-msg", "step-done"];
+
+  /* --- personalized name from the link (?n=Emma) --- */
+  var params = new URLSearchParams(location.search);
+  var dateName = (params.get("n") || params.get("namn") || "").trim().slice(0, 24);
+  if (dateName) {
+    dateName = dateName.charAt(0).toUpperCase() + dateName.slice(1);
+    document.getElementById("who").textContent = ", " + dateName;
+  }
   var current = 0;
   var progress = document.getElementById("progress");
   var pips = progress.querySelectorAll(".p");
@@ -679,7 +676,7 @@
 
   function compose() {
     var days = picked("days");
-    var name = document.getElementById("name").value.trim();
+    var name = dateName;
     var times = picked("times");
     var vibes = picked("vibes");
     var msg = document.getElementById("msg").value.trim();

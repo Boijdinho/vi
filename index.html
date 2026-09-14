@@ -485,7 +485,7 @@
   </section>
 
   <!-- STEG 1: när -->
-  <section class="step panel" id="step-days">
+  <section class="step panel" id="step-days" style="display: none;">
     <h2>Visste väl det 😏</h2>
     <p class="hint">Bocka för dagarna du är ledig.</p>
     <div class="daylist" id="days"></div>
@@ -499,7 +499,7 @@
   </section>
 
   <!-- STEG 2: preferenser -->
-  <section class="step panel" id="step-vibes">
+  <section class="step panel" id="step-vibes" style="display: none;">
     <h2>Vad föredrar du?</h2>
     <p class="hint">Välj ett eller flera — jag fixar resten.</p>
     <div class="chips" id="vibes">
@@ -517,7 +517,7 @@
   </section>
 
   <!-- STEG 3: klart -->
-  <section class="step panel done-panel" id="step-done">
+  <section class="step panel done-panel" id="step-done" style="display: none;">
     <p class="big-heart">💌</p>
     <h2>Klart!</h2>
     <p class="done-lede">Isak har fått ditt svar och hör av sig inom kort för att boka in er.</p>
@@ -600,7 +600,9 @@
   function show(idx) {
     current = idx;
     STEPS.forEach(function (id, i) {
-      document.getElementById(id).classList.toggle("active", i === idx);
+      var el = document.getElementById(id);
+      el.classList.toggle("active", i === idx);
+      el.style.display = (i === idx) ? "block" : "none";
     });
     progress.classList.toggle("on", idx > 0);
     pips.forEach(function (p, i) { p.classList.toggle("done", i < idx); });

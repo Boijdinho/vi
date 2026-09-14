@@ -246,56 +246,103 @@
   }
   textarea { resize: vertical; min-height: 76px; }
 
-  /* --- day list (variant B) --- */
-  .daylist {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .dayrow {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    box-sizing: border-box;
-    font-family: var(--body);
-    text-align: left;
+  /* --- calendar (variant A: månadsvy) --- */
+  .cal {
     background: var(--card);
     border: 1px solid var(--card-edge);
-    border-radius: 16px;
-    padding: 13px 18px;
-    cursor: pointer;
-    transition: transform .12s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+    border-radius: 20px;
+    padding: 20px 14px 16px;
+    box-shadow: 0 10px 30px rgba(122, 22, 66, .12);
   }
-  .dayrow:active { transform: scale(.98); }
-  .dayrow .d-left { display: flex; align-items: baseline; gap: 10px; }
-  .dayrow .wd { font-size: 16px; font-weight: 700; color: var(--berry); }
-  .dayrow .dm { font-size: 13px; color: var(--berry-soft); }
-  .dayrow .d-check {
-    width: 26px;
-    height: 26px;
-    flex: none;
-    border: 2px solid var(--card-edge);
-    border-radius: 50%;
+  .cal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    padding: 0 8px;
+  }
+  .cal-month {
+    font-family: var(--display);
+    font-style: italic;
+    font-weight: 600;
+    font-size: 20px;
+  }
+  .cal-year {
+    font-size: 14px;
+    color: #C98BA9;
+    font-weight: 700;
+  }
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
+  }
+  .cal-wd {
+    margin-bottom: 6px;
+  }
+  .cal-wd span {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    color: var(--berry-soft);
+  }
+  .daycell {
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
-    color: transparent;
-    background: transparent;
-    transition: background .15s ease, color .15s ease, border-color .15s ease;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: var(--body);
   }
-  .dayrow[aria-pressed="true"] {
+  .daycell .dn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--berry);
+    border-radius: 50%;
+    border: 1.5px solid transparent;
+    transition: background .15s ease, color .15s ease, transform .12s ease;
+  }
+  .daycell:active .dn { transform: scale(.9); }
+  .daycell.out { cursor: default; pointer-events: none; }
+  .daycell.out .dn { color: #E3C1D2; font-weight: 400; }
+  .daycell.today .dn { border-color: var(--hot); border-style: dashed; color: var(--berry-soft); }
+  .daycell[aria-pressed="true"] .dn {
     background: linear-gradient(100deg, var(--hot-2), var(--hot));
-    border-color: var(--hot);
-    box-shadow: 0 6px 18px rgba(232, 68, 127, .3);
+    color: #FFFFFF;
+    font-weight: 700;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(232, 68, 127, .4);
   }
-  .dayrow[aria-pressed="true"] .wd { color: #FFFFFF; }
-  .dayrow[aria-pressed="true"] .dm { color: #FFD9E7; }
-  .dayrow[aria-pressed="true"] .d-check {
-    background: #FFFFFF;
-    border-color: #FFFFFF;
-    color: var(--hot);
+  .cal-legend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 0 8px;
+    font-size: 12px;
+    color: var(--berry-soft);
+  }
+  .cal-legend .dot-today {
+    width: 10px;
+    height: 10px;
+    border: 1.5px dashed var(--hot);
+    border-radius: 50%;
+  }
+  .cal-legend .dot-free {
+    width: 10px;
+    height: 10px;
+    background: var(--hot);
+    border-radius: 50%;
+    margin-left: 12px;
   }
 
   .comment-label {
@@ -487,8 +534,21 @@
   <!-- STEG 1: när -->
   <section class="step panel" id="step-days" style="display: none;">
     <h2>Visste väl det 😏</h2>
-    <p class="hint">Bocka för dagarna du är ledig.</p>
-    <div class="daylist" id="days"></div>
+    <p class="hint">Vilka dagar är du ledig? Tryck i kalendern.</p>
+    <div class="cal">
+      <div class="cal-head">
+        <span class="cal-month" id="cal-month"></span>
+        <span class="cal-year" id="cal-year"></span>
+      </div>
+      <div class="cal-grid cal-wd" aria-hidden="true">
+        <span>M</span><span>T</span><span>O</span><span>T</span><span>F</span><span>L</span><span>S</span>
+      </div>
+      <div class="cal-grid" id="days"></div>
+      <div class="cal-legend" aria-hidden="true">
+        <span class="dot-today"></span><span>idag</span>
+        <span class="dot-free"></span><span>du är ledig</span>
+      </div>
+    </div>
     <p class="comment-label">Kommentar</p>
     <p class="comment-hint">Vill du lägga till något? Helt frivilligt.</p>
     <textarea id="msg" placeholder="Skriv här om du vill… 💭" maxlength="280"></textarea>
@@ -705,33 +765,45 @@
     setTimeout(function () { show(1); }, 550);
   });
 
-  /* --- day list (variant B): the coming week, starting tomorrow --- */
-  var WD_FULL = ["Söndag", "Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lördag"];
+  /* --- calendar (variant A): three week rows, coming week selectable --- */
   var WD_SHORT = ["sön", "mån", "tis", "ons", "tors", "fre", "lör"];
-  var MON = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
+  var MONTH_FULL = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
   var daysEl = document.getElementById("days");
-  var today = new Date();
-  for (var d = 1; d <= 7; d++) {
-    var date = new Date(today.getFullYear(), today.getMonth(), today.getDate() + d);
+  var now = new Date();
+  var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  var tomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+  var lastFree = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7);
+  var mondayOffset = (today.getDay() + 6) % 7;
+  var gridStart = new Date(today.getFullYear(), today.getMonth(), today.getDate() - mondayOffset - 7);
+
+  for (var i = 0; i < 21; i++) {
+    var date = new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate() + i);
+    var selectable = date.getTime() >= tomorrow.getTime() && date.getTime() <= lastFree.getTime();
+    var isToday = date.getTime() === today.getTime();
     var b = document.createElement("button");
     b.type = "button";
-    b.className = "dayrow";
+    b.className = "daycell" + (selectable ? "" : " out") + (isToday ? " today" : "");
     b.id = "day-" + date.getDate() + "-" + (date.getMonth() + 1);
     b.setAttribute("aria-pressed", "false");
+    if (!selectable) b.setAttribute("tabindex", "-1");
     b.dataset.val = WD_SHORT[date.getDay()] + " " + date.getDate() + "/" + (date.getMonth() + 1);
-    b.innerHTML =
-      '<span class="d-left"><span class="wd">' + WD_FULL[date.getDay()] + '</span>' +
-      '<span class="dm">' + date.getDate() + " " + MON[date.getMonth()] + '</span></span>' +
-      '<span class="d-check">♥</span>';
+    b.innerHTML = '<span class="dn">' + date.getDate() + "</span>";
     daysEl.appendChild(b);
   }
 
+  var monthLabel = MONTH_FULL[tomorrow.getMonth()];
+  if (lastFree.getMonth() !== tomorrow.getMonth()) {
+    monthLabel += " – " + MONTH_FULL[lastFree.getMonth()];
+  }
+  document.getElementById("cal-month").textContent = monthLabel;
+  document.getElementById("cal-year").textContent = String(tomorrow.getFullYear());
+
   var daysNext = document.getElementById("days-next");
   daysEl.addEventListener("click", function (e) {
-    var row = e.target.closest(".dayrow");
-    if (!row) return;
-    row.setAttribute("aria-pressed", row.getAttribute("aria-pressed") === "true" ? "false" : "true");
-    daysNext.disabled = picked("days", ".dayrow").length === 0;
+    var cell = e.target.closest(".daycell");
+    if (!cell || cell.classList.contains("out")) return;
+    cell.setAttribute("aria-pressed", cell.getAttribute("aria-pressed") === "true" ? "false" : "true");
+    daysNext.disabled = picked("days", ".daycell").length === 0;
   });
 
   document.getElementById("vibes").addEventListener("click", function (e) {
@@ -753,7 +825,7 @@
   }
 
   function compose() {
-    var days = picked("days", ".dayrow");
+    var days = picked("days", ".daycell");
     var vibes = picked("vibes", ".chip");
     var msg = document.getElementById("msg").value.trim();
 

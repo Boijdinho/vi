@@ -136,7 +136,7 @@
     var name = input.value.trim();
     if (!name) { result.classList.remove("on"); return; }
     var pretty = name.charAt(0).toUpperCase() + name.slice(1);
-    currentLink = base + "?d=" + encodeName(name);
+    currentLink = base + "?" + encodeName(name);
     previewEl.textContent = "”Vill du gå ut med mig, " + pretty + "?”";
     linkEl.textContent = currentLink;
     result.classList.add("on");

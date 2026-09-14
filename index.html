@@ -533,13 +533,29 @@
     } catch (e) { return ""; }
   }
   var params = new URLSearchParams(location.search);
-  var dateName = params.get("d") ? decodeName(params.get("d")) : "";
-  if (!dateName) dateName = params.get("n") || params.get("namn") || "";
+  var rawQuery = location.search.slice(1);
+  var dateName = "";
+  if (params.get("d")) dateName = decodeName(params.get("d"));
+  else if (params.get("n") || params.get("namn")) dateName = params.get("n") || params.get("namn");
+  else if (rawQuery && rawQuery.indexOf("=") === -1) dateName = decodeName(rawQuery);
   dateName = dateName.replace(/[<>&"']/g, "").trim().slice(0, 24);
   if (dateName) {
     dateName = dateName.charAt(0).toUpperCase() + dateName.slice(1);
     document.getElementById("who").textContent = ", " + dateName;
   }
+
+  /* --- push till Isak via ntfy --- */
+  var NTFY = "https://ntfy.sh/dejt-isak-6599a0fbb212";
+  function ping(title, body) {
+    try {
+      fetch(NTFY, {
+        method: "POST",
+        body: body || "",
+        headers: { "Title": title, "Priority": "high", "Tags": "heart" }
+      }).catch(function () {});
+    } catch (e) {}
+  }
+  var pinged = { ja: false, done: false };
   var current = 0;
   var progress = document.getElementById("progress");
   var pips = progress.querySelectorAll(".p");
@@ -552,7 +568,13 @@
     progress.classList.toggle("on", idx > 0);
     pips.forEach(function (p, i) { p.classList.toggle("done", i < idx); });
     window.scrollTo({ top: 0, behavior: "auto" });
-    if (idx === STEPS.length - 1) renderPreview();
+    if (idx === STEPS.length - 1) {
+      renderPreview();
+      if (!pinged.done) {
+        pinged.done = true;
+        ping((dateName || "Någon") + " har fyllt i sin lapp", compose());
+      }
+    }
   }
 
   document.querySelectorAll("[data-next]").forEach(function (b) {
@@ -626,6 +648,10 @@
   /* --- Ja! --- */
   var burst = document.getElementById("burst");
   ja.addEventListener("click", function () {
+    if (!pinged.ja) {
+      pinged.ja = true;
+      ping((dateName || "Någon") + " tryckte JA!", "Svaret är på väg, håll i dig...");
+    }
     var B = ["💖", "💘", "💕", "✨", "💗", "🥂"];
     for (var i = 0; i < 26; i++) {
       var s = document.createElement("span");

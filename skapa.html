@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Länkverkstan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500;1,9..144,600&family=Schibsted+Grotesk:wght@400;500;700&display=swap">
+<style>
+  :root {
+    --bg-top: #FFE3EE;
+    --bg-deep: #FFA9CB;
+    --berry: #5C0F35;
+    --berry-soft: #A2537B;
+    --card: #FFF6FA;
+    --card-edge: #F8CCDE;
+    --hot: #E8447F;
+    --hot-2: #FF5C9E;
+  }
+  html { color-scheme: light; }
+  body {
+    margin: 0;
+    background: radial-gradient(130% 70% at 50% -12%, var(--bg-top) 0%, #FFC4DB 58%, var(--bg-deep) 100%) var(--bg-deep);
+    color: var(--berry);
+    font-family: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    padding-inline: 20px;
+    padding-block: 0 56px;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 430px; margin-inline: auto; }
+  header { padding-block: 52px 6px; }
+  .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--hot); margin: 0 0 12px;
+  }
+  h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-style: italic; font-weight: 500;
+    font-size: clamp(34px, 10vw, 44px);
+    line-height: 1.08; margin: 0;
+    text-wrap: balance;
+  }
+  .lede { color: var(--berry-soft); margin: 14px 0 26px; max-width: 36ch; }
+  label { display: block; font-weight: 700; font-size: 14px; margin: 0 0 8px; }
+  input[type="text"] {
+    width: 100%; box-sizing: border-box;
+    background: var(--card); border: 1px solid var(--card-edge);
+    border-radius: 14px; color: var(--berry);
+    font-family: inherit; font-size: 18px;
+    padding: 14px 16px;
+  }
+  input::placeholder { color: #C98BA9; }
+  input:focus-visible, button:focus-visible { outline: 2px solid var(--hot); outline-offset: 2px; }
+
+  .result { margin-top: 26px; display: none; }
+  .result.on { display: block; animation: rise .35s ease both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { .result.on { animation: none; } }
+
+  .preview {
+    font-family: "Fraunces", Georgia, serif;
+    font-style: italic; font-size: 18px;
+    margin: 0 0 14px; color: var(--berry);
+  }
+  .linkbox {
+    background: var(--card); border: 1px dashed var(--hot-2);
+    border-radius: 14px; padding: 14px 16px;
+    font-size: 14px; word-break: break-all;
+    color: var(--berry); font-family: ui-monospace, Menlo, monospace;
+  }
+  .btn {
+    font-family: inherit; font-size: 16.5px; font-weight: 700;
+    color: #FFF; background: linear-gradient(100deg, var(--hot-2), var(--hot));
+    border: none; border-radius: 999px; padding: 14px 30px;
+    cursor: pointer; box-shadow: 0 8px 22px rgba(232, 68, 127, .35);
+    margin-top: 14px; transition: transform .12s ease;
+  }
+  .btn:active { transform: scale(.97); }
+  .note { font-size: 13px; color: var(--berry-soft); margin-top: 22px; }
+  .toast {
+    position: fixed; left: 50%; bottom: 26px;
+    transform: translateX(-50%) translateY(16px);
+    background: var(--berry); color: #FFE3EE;
+    font-weight: 700; font-size: 14.5px;
+    padding: 12px 20px; border-radius: 999px;
+    opacity: 0; pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Bara för Isak 🤫</p>
+    <h1>Länkverkstan</h1>
+    <p class="lede">Skriv in hennes namn så får du en personlig länk att sms:a. Namnet syns inte i länken — det är kodat.</p>
+  </header>
+
+  <label for="name">Hennes namn</label>
+  <input type="text" id="name" placeholder="T.ex. Emma" autocomplete="off" maxlength="24" autofocus>
+
+  <div class="result" id="result">
+    <p class="preview" id="preview"></p>
+    <div class="linkbox" id="link"></div>
+    <button type="button" class="btn" id="copy">Kopiera länken 💌</button>
+  </div>
+
+  <p class="note">Spara den här sidan som bokmärke. Varje namn ger sin egen länk — skapa hur många du vill.</p>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function () {
+  "use strict";
+  var base = location.href.replace(/skapa\.html.*$/, "");
+
+  function encodeName(name) {
+    var bytes = new TextEncoder().encode(name);
+    var bin = "";
+    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+
+  var input = document.getElementById("name");
+  var result = document.getElementById("result");
+  var linkEl = document.getElementById("link");
+  var previewEl = document.getElementById("preview");
+  var currentLink = "";
+
+  function render() {
+    var name = input.value.trim();
+    if (!name) { result.classList.remove("on"); return; }
+    var pretty = name.charAt(0).toUpperCase() + name.slice(1);
+    currentLink = base + "?d=" + encodeName(name);
+    previewEl.textContent = "”Vill du gå ut med mig, " + pretty + "?”";
+    linkEl.textContent = currentLink;
+    result.classList.add("on");
+  }
+  input.addEventListener("input", render);
+
+  var toastEl = document.getElementById("toast");
+  var toastTimer;
+  function toast(t) {
+    toastEl.textContent = t;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 2400);
+  }
+
+  document.getElementById("copy").addEventListener("click", function () {
+    if (!currentLink) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(currentLink).then(function () {
+        toast("Kopierad! Klistra in i sms:et 💬");
+      }, function () {
+        toast("Kunde inte kopiera — markera länken själv.");
+      });
+    } else {
+      toast("Kunde inte kopiera — markera länken själv.");
+    }
+  });
+})();
+</script>
+</body>
+</html>

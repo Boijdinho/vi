@@ -521,9 +521,21 @@
   /* --- funnel steps --- */
   var STEPS = ["step-ask", "step-days", "step-times", "step-vibes", "step-msg", "step-done"];
 
-  /* --- personalized name from the link (?n=Emma) --- */
+  /* --- personalized name from the link (?d=<kodat namn>, fallback ?n=Emma) --- */
+  function decodeName(s) {
+    try {
+      s = s.replace(/-/g, "+").replace(/_/g, "/");
+      while (s.length % 4) s += "=";
+      var bytes = atob(s);
+      var arr = new Uint8Array(bytes.length);
+      for (var i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+      return new TextDecoder("utf-8").decode(arr);
+    } catch (e) { return ""; }
+  }
   var params = new URLSearchParams(location.search);
-  var dateName = (params.get("n") || params.get("namn") || "").trim().slice(0, 24);
+  var dateName = params.get("d") ? decodeName(params.get("d")) : "";
+  if (!dateName) dateName = params.get("n") || params.get("namn") || "";
+  dateName = dateName.replace(/[<>&"']/g, "").trim().slice(0, 24);
   if (dateName) {
     dateName = dateName.charAt(0).toUpperCase() + dateName.slice(1);
     document.getElementById("who").textContent = ", " + dateName;

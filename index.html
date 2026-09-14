@@ -708,24 +708,38 @@
       nej.style.top = r.top + "px";
       nej.classList.add("loose");
     }
-    var w = r.width, hgt = r.height;
-    var pad = 14;
-    var maxX = window.innerWidth - w - pad;
-    var maxY = window.innerHeight - hgt - pad;
-    var x, y, tries = 0;
-    do {
-      x = pad + Math.random() * Math.max(1, maxX - pad);
-      y = pad + Math.random() * Math.max(1, maxY - pad);
-      tries++;
-    } while (tries < 10 && Math.hypot(x - r.left, y - r.top) < 140);
-    nej.style.left = x + "px";
-    nej.style.top = y + "px";
 
+    /* uppdatera texterna FÖRST så knappens nya bredd räknas med */
     dodges++;
     taunt.textContent = TAUNTS[Math.min(dodges - 1, TAUNTS.length - 1)];
     nej.textContent = NEJ_LABELS[Math.min(Math.floor(dodges / 2), NEJ_LABELS.length - 1)];
     var scale = Math.min(1 + dodges * 0.07, 1.55);
     ja.style.transform = "scale(" + scale + ")";
+
+    /* håll knappen inom den SYNLIGA skärmytan (visualViewport tar
+       hänsyn till mobilens verktygsfält, tangentbord och zoom) */
+    var vv = window.visualViewport;
+    var vw = vv ? vv.width : window.innerWidth;
+    var vh = vv ? vv.height : window.innerHeight;
+    var offX = vv ? vv.offsetLeft : 0;
+    var offY = vv ? vv.offsetTop : 0;
+    var w = nej.offsetWidth, hgt = nej.offsetHeight;
+    var pad = 14;
+    var minX = offX + pad;
+    var maxX = offX + vw - w - pad;
+    var minY = offY + pad;
+    var maxY = offY + vh - hgt - pad - 24;
+    if (maxX < minX) maxX = minX;
+    if (maxY < minY) maxY = minY;
+
+    var x, y, tries = 0;
+    do {
+      x = minX + Math.random() * (maxX - minX);
+      y = minY + Math.random() * (maxY - minY);
+      tries++;
+    } while (tries < 10 && Math.hypot(x - r.left, y - r.top) < 140);
+    nej.style.left = x + "px";
+    nej.style.top = y + "px";
   }
 
   nej.addEventListener("pointerdown", function (e) { e.preventDefault(); moveNej(); });

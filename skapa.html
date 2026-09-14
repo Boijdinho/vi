@@ -80,6 +80,19 @@
   }
   .btn:active { transform: scale(.97); }
   .note { font-size: 13px; color: var(--berry-soft); margin-top: 22px; }
+  .linkbox-short {
+    border-style: solid; border-color: var(--hot);
+    font-size: 18px; font-weight: 700; margin-top: 14px;
+    text-align: center;
+  }
+  .btn[disabled] { opacity: .55; cursor: wait; }
+  .btn-plain {
+    display: block; margin-top: 12px;
+    font-family: inherit; font-size: 13.5px; font-weight: 500;
+    color: var(--berry-soft); background: none; border: none;
+    padding: 6px 0; cursor: pointer;
+    text-decoration: underline; text-underline-offset: 3px;
+  }
   .toast {
     position: fixed; left: 50%; bottom: 26px;
     transform: translateX(-50%) translateY(16px);
@@ -106,7 +119,12 @@
   <div class="result" id="result">
     <p class="preview" id="preview"></p>
     <div class="linkbox" id="link"></div>
-    <button type="button" class="btn" id="copy">Kopiera länken 💌</button>
+    <button type="button" class="btn" id="shorten">Gör superkort länk ✂️</button>
+    <div class="short" id="short" hidden>
+      <div class="linkbox linkbox-short" id="shortlink"></div>
+      <button type="button" class="btn" id="copyshort">Kopiera kortlänken 💌</button>
+    </div>
+    <button type="button" class="btn-plain" id="copy">…eller kopiera den långa länken</button>
   </div>
 
   <p class="note">Spara den här sidan som bokmärke. Varje namn ger sin egen länk — skapa hur många du vill.</p>
@@ -130,10 +148,17 @@
   var result = document.getElementById("result");
   var linkEl = document.getElementById("link");
   var previewEl = document.getElementById("preview");
+  var shortWrap = document.getElementById("short");
+  var shortLinkEl = document.getElementById("shortlink");
+  var shortenBtn = document.getElementById("shorten");
   var currentLink = "";
+  var shortLink = "";
 
   function render() {
     var name = input.value.trim();
+    shortLink = "";
+    shortWrap.hidden = true;
+    shortenBtn.hidden = false;
     if (!name) { result.classList.remove("on"); return; }
     var pretty = name.charAt(0).toUpperCase() + name.slice(1);
     currentLink = base + "?" + encodeName(name);
@@ -142,6 +167,29 @@
     result.classList.add("on");
   }
   input.addEventListener("input", render);
+
+  shortenBtn.addEventListener("click", function () {
+    if (!currentLink) return;
+    shortenBtn.disabled = true;
+    shortenBtn.textContent = "Fixar…";
+    fetch("https://tinyurl.com/api-create.php?url=" + encodeURIComponent(currentLink))
+      .then(function (r) { return r.ok ? r.text() : Promise.reject(new Error("http")); })
+      .then(function (t) {
+        t = t.trim();
+        if (!/^https:\/\/tinyurl\.com\/[A-Za-z0-9]+$/.test(t)) throw new Error("format");
+        shortLink = t;
+        shortLinkEl.textContent = t.replace(/^https:\/\//, "");
+        shortWrap.hidden = false;
+        shortenBtn.hidden = true;
+      })
+      .catch(function () {
+        toast("Gick inte just nu — använd långa länken så länge.");
+      })
+      .finally(function () {
+        shortenBtn.disabled = false;
+        shortenBtn.textContent = "Gör superkort länk ✂️";
+      });
+  });
 
   var toastEl = document.getElementById("toast");
   var toastTimer;
@@ -152,10 +200,10 @@
     toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 2400);
   }
 
-  document.getElementById("copy").addEventListener("click", function () {
-    if (!currentLink) return;
+  function copyLink(link) {
+    if (!link) return;
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(currentLink).then(function () {
+      navigator.clipboard.writeText(link).then(function () {
         toast("Kopierad! Klistra in i sms:et 💬");
       }, function () {
         toast("Kunde inte kopiera — markera länken själv.");
@@ -163,7 +211,9 @@
     } else {
       toast("Kunde inte kopiera — markera länken själv.");
     }
-  });
+  }
+  document.getElementById("copy").addEventListener("click", function () { copyLink(currentLink); });
+  document.getElementById("copyshort").addEventListener("click", function () { copyLink(shortLink); });
 })();
 </script>
 </body>

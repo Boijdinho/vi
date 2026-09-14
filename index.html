@@ -225,10 +225,10 @@
   .panel .hint {
     font-size: 14px;
     color: var(--berry-soft);
-    margin: 0 0 20px;
+    margin: 0 0 18px;
   }
 
-  input[type="text"], textarea {
+  textarea {
     width: 100%;
     box-sizing: border-box;
     background: var(--card);
@@ -239,13 +239,79 @@
     font-size: 16px;
     padding: 14px 16px;
   }
-  input::placeholder, textarea::placeholder { color: #C98BA9; }
-  input:focus-visible, textarea:focus-visible, button:focus-visible {
+  textarea::placeholder { color: #C98BA9; }
+  textarea:focus-visible, button:focus-visible {
     outline: 2px solid var(--hot);
     outline-offset: 2px;
   }
-  textarea { resize: vertical; min-height: 84px; }
+  textarea { resize: vertical; min-height: 76px; }
 
+  /* --- day list (variant B) --- */
+  .daylist {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .dayrow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: var(--body);
+    text-align: left;
+    background: var(--card);
+    border: 1px solid var(--card-edge);
+    border-radius: 16px;
+    padding: 13px 18px;
+    cursor: pointer;
+    transition: transform .12s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+  .dayrow:active { transform: scale(.98); }
+  .dayrow .d-left { display: flex; align-items: baseline; gap: 10px; }
+  .dayrow .wd { font-size: 16px; font-weight: 700; color: var(--berry); }
+  .dayrow .dm { font-size: 13px; color: var(--berry-soft); }
+  .dayrow .d-check {
+    width: 26px;
+    height: 26px;
+    flex: none;
+    border: 2px solid var(--card-edge);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: transparent;
+    background: transparent;
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .dayrow[aria-pressed="true"] {
+    background: linear-gradient(100deg, var(--hot-2), var(--hot));
+    border-color: var(--hot);
+    box-shadow: 0 6px 18px rgba(232, 68, 127, .3);
+  }
+  .dayrow[aria-pressed="true"] .wd { color: #FFFFFF; }
+  .dayrow[aria-pressed="true"] .dm { color: #FFD9E7; }
+  .dayrow[aria-pressed="true"] .d-check {
+    background: #FFFFFF;
+    border-color: #FFFFFF;
+    color: var(--hot);
+  }
+
+  .comment-label {
+    font-family: var(--display);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 20px;
+    margin: 26px 0 4px;
+  }
+  .comment-hint {
+    font-size: 13.5px;
+    color: var(--berry-soft);
+    margin: 0 0 10px;
+  }
+
+  /* --- chips (preferenser) --- */
   .chips { display: flex; flex-wrap: wrap; gap: 9px; }
   .chip {
     font-family: var(--body);
@@ -266,10 +332,6 @@
     color: #FFFFFF;
     font-weight: 700;
   }
-  .chip .sub { display: block; font-size: 11px; opacity: .75; }
-  .day-chip { text-align: center; min-width: 62px; padding: 8px 10px; }
-  .day-chip .wd { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; opacity: .7; }
-  .day-chip .dm { display: block; font-size: 16px; font-weight: 700; margin-top: 1px; }
 
   /* --- step nav --- */
   .nav {
@@ -306,7 +368,15 @@
     cursor: pointer;
   }
 
-  /* --- final note --- */
+  /* --- final confirmation --- */
+  .done-panel { text-align: center; }
+  .done-panel .big-heart { font-size: 56px; margin: 0 0 14px; }
+  .done-lede {
+    font-size: 16px;
+    color: var(--berry-soft);
+    max-width: 300px;
+    margin: 0 auto;
+  }
   .note {
     background: linear-gradient(168deg, #FBF3E6 0%, #F3E4CE 100%);
     color: #4A1330;
@@ -315,7 +385,9 @@
     transform: rotate(-1.2deg);
     box-shadow: 0 14px 34px rgba(122, 22, 66, .3), 0 2px 0 rgba(255,255,255,.4) inset;
     position: relative;
-    margin-top: 8px;
+    margin: 32px auto 0;
+    max-width: 300px;
+    text-align: left;
   }
   .note::before {
     content: "";
@@ -343,30 +415,22 @@
     white-space: pre-wrap;
     overflow-wrap: break-word;
   }
-
-  .cta { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
-  .btn-send {
-    font-family: var(--body);
-    font-size: 17px;
-    font-weight: 700;
-    color: #FFFFFF;
-    background: linear-gradient(100deg, var(--hot-2), var(--hot));
-    border: none;
-    border-radius: 999px;
-    padding: 16px 24px;
-    cursor: pointer;
-    box-shadow: 0 10px 28px rgba(232, 68, 127, .4);
-    transition: transform .12s ease;
+  .kiss {
+    font-family: var(--display);
+    font-style: italic;
+    font-size: 15.5px;
+    color: var(--berry-soft);
+    margin-top: 32px;
   }
-  .btn-send:active { transform: scale(.97); }
   .btn-copy {
     font-family: var(--body);
-    font-size: 14.5px;
+    font-size: 13.5px;
     font-weight: 500;
     color: var(--berry-soft);
     background: none;
     border: none;
     padding: 8px;
+    margin-top: 10px;
     cursor: pointer;
     text-decoration: underline;
     text-underline-offset: 3px;
@@ -405,7 +469,7 @@
 
 <div class="wrap">
   <div class="progress" id="progress" aria-hidden="true">
-    <span class="p">♥</span><span class="p">♥</span><span class="p">♥</span><span class="p">♥</span><span class="p">♥</span>
+    <span class="p">♥</span><span class="p">♥</span><span class="p">♥</span>
   </div>
 
   <!-- STEG 0: frågan -->
@@ -420,36 +484,24 @@
     <p class="nej-taunt" id="taunt"></p>
   </section>
 
-  <!-- STEG 1: dagar -->
+  <!-- STEG 1: när -->
   <section class="step panel" id="step-days">
     <h2>Visste väl det 😏</h2>
-    <p class="hint">När är du ledig kommande vecka? Välj alla dagar som funkar.</p>
-    <div class="chips" id="days"></div>
+    <p class="hint">Bocka för dagarna du är ledig.</p>
+    <div class="daylist" id="days"></div>
+    <p class="comment-label">Kommentar</p>
+    <p class="comment-hint">Vill du lägga till något? Helt frivilligt.</p>
+    <textarea id="msg" placeholder="Skriv här om du vill… 💭" maxlength="280"></textarea>
     <div class="nav">
       <button type="button" class="btn-back" data-back>‹ Tillbaka</button>
       <button type="button" class="btn-next" id="days-next" data-next disabled>Nästa</button>
     </div>
   </section>
 
-  <!-- STEG 3: tid på dagen -->
-  <section class="step panel" id="step-times">
-    <h2>När på dagen?</h2>
-    <p class="hint">Flera går bra.</p>
-    <div class="chips" id="times">
-      <button type="button" class="chip" data-val="lunch" aria-pressed="false">☀️ Lunch</button>
-      <button type="button" class="chip" data-val="eftermiddag" aria-pressed="false">🌤 Eftermiddag</button>
-      <button type="button" class="chip" data-val="kväll" aria-pressed="false">🌙 Kväll</button>
-    </div>
-    <div class="nav">
-      <button type="button" class="btn-back" data-back>‹ Tillbaka</button>
-      <button type="button" class="btn-next" data-next>Nästa</button>
-    </div>
-  </section>
-
-  <!-- STEG 4: vibe -->
+  <!-- STEG 2: preferenser -->
   <section class="step panel" id="step-vibes">
-    <h2>Här är några alternativ 👇</h2>
-    <p class="hint">Vad lockar? Välj ett eller flera.</p>
+    <h2>Vad föredrar du?</h2>
+    <p class="hint">Välj ett eller flera — jag fixar resten.</p>
     <div class="chips" id="vibes">
       <button type="button" class="chip" data-val="middag 🍝" aria-pressed="false">🍝 Middag</button>
       <button type="button" class="chip" data-val="en drink 🍸" aria-pressed="false">🍸 Drink</button>
@@ -460,37 +512,21 @@
     </div>
     <div class="nav">
       <button type="button" class="btn-back" data-back>‹ Tillbaka</button>
-      <button type="button" class="btn-next" data-next>Nästa</button>
+      <button type="button" class="btn-next" data-next>Klar! 💌</button>
     </div>
   </section>
 
-  <!-- STEG 5: hälsning -->
-  <section class="step panel" id="step-msg">
-    <h2>Vill du hälsa något?</h2>
-    <p class="hint">Skriv något litet om du vill — eller hoppa över.</p>
-    <textarea id="msg" placeholder="T.ex. 'ser fram emot det' 😇" maxlength="280"></textarea>
-    <div class="nav">
-      <button type="button" class="btn-back" data-back>‹ Tillbaka</button>
-      <button type="button" class="btn-next" data-next>Skriv ihop mitt svar ✍️</button>
-    </div>
-  </section>
-
-  <!-- STEG 6: lappen -->
-  <section class="step panel" id="step-done">
-    <h2>Klart! Här är din lapp 💌</h2>
-    <p class="hint">Skicka den till Isak så bokar han in er.</p>
+  <!-- STEG 3: klart -->
+  <section class="step panel done-panel" id="step-done">
+    <p class="big-heart">💌</p>
+    <h2>Klart!</h2>
+    <p class="done-lede">Isak har fått ditt svar och hör av sig inom kort för att boka in er.</p>
     <div class="note">
-      <h3>Ditt svar till Isak</h3>
+      <h3>Ditt svar</h3>
       <p id="preview"></p>
     </div>
-    <div class="cta">
-      <button type="button" class="btn-send" id="send">Skicka till Isak 💌</button>
-      <button type="button" class="btn-copy" id="copy">…eller kopiera texten och svara i vår chatt</button>
-    </div>
-    <div class="nav">
-      <button type="button" class="btn-back" data-back>‹ Ändra något</button>
-      <span></span>
-    </div>
+    <button type="button" class="btn-copy" id="copy">Vill du skicka svaret som sms också? 💬</button>
+    <p class="kiss">Puss så länge 💋</p>
   </section>
 
   <footer>Byggd med rosa tankar ♥ för dig</footer>
@@ -519,9 +555,9 @@
   }
 
   /* --- funnel steps --- */
-  var STEPS = ["step-ask", "step-days", "step-times", "step-vibes", "step-msg", "step-done"];
+  var STEPS = ["step-ask", "step-days", "step-vibes", "step-done"];
 
-  /* --- personalized name from the link (?d=<kodat namn>, fallback ?n=Emma) --- */
+  /* --- personalized name from the link (?<kod>, ?d=<kod>, fallback ?n=Emma) --- */
   function decodeName(s) {
     try {
       s = s.replace(/-/g, "+").replace(/_/g, "/");
@@ -556,6 +592,7 @@
     } catch (e) {}
   }
   var pinged = { ja: false, done: false };
+
   var current = 0;
   var progress = document.getElementById("progress");
   var pips = progress.querySelectorAll(".p");
@@ -572,7 +609,7 @@
       renderPreview();
       if (!pinged.done) {
         pinged.done = true;
-        ping((dateName || "Någon") + " har fyllt i sin lapp", compose());
+        ping((dateName || "Någon") + " har svarat", compose());
       }
     }
   }
@@ -669,40 +706,44 @@
     setTimeout(function () { show(1); }, 550);
   });
 
-  /* --- day chips: the coming week, starting tomorrow --- */
-  var WD = ["sön", "mån", "tis", "ons", "tors", "fre", "lör"];
+  /* --- day list (variant B): the coming week, starting tomorrow --- */
+  var WD_FULL = ["Söndag", "Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lördag"];
+  var WD_SHORT = ["sön", "mån", "tis", "ons", "tors", "fre", "lör"];
+  var MON = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
   var daysEl = document.getElementById("days");
   var today = new Date();
   for (var d = 1; d <= 7; d++) {
     var date = new Date(today.getFullYear(), today.getMonth(), today.getDate() + d);
     var b = document.createElement("button");
     b.type = "button";
-    b.className = "chip day-chip";
+    b.className = "dayrow";
     b.id = "day-" + date.getDate() + "-" + (date.getMonth() + 1);
     b.setAttribute("aria-pressed", "false");
-    b.dataset.val = WD[date.getDay()] + " " + date.getDate() + "/" + (date.getMonth() + 1);
-    b.innerHTML = '<span class="wd">' + WD[date.getDay()] + '</span><span class="dm">' + date.getDate() + "/" + (date.getMonth() + 1) + "</span>";
+    b.dataset.val = WD_SHORT[date.getDay()] + " " + date.getDate() + "/" + (date.getMonth() + 1);
+    b.innerHTML =
+      '<span class="d-left"><span class="wd">' + WD_FULL[date.getDay()] + '</span>' +
+      '<span class="dm">' + date.getDate() + " " + MON[date.getMonth()] + '</span></span>' +
+      '<span class="d-check">♥</span>';
     daysEl.appendChild(b);
   }
 
-  function wireChips(container, onChange) {
-    container.addEventListener("click", function (e) {
-      var chip = e.target.closest(".chip");
-      if (!chip) return;
-      chip.setAttribute("aria-pressed", chip.getAttribute("aria-pressed") === "true" ? "false" : "true");
-      if (onChange) onChange();
-    });
-  }
   var daysNext = document.getElementById("days-next");
-  wireChips(daysEl, function () {
-    daysNext.disabled = picked("days").length === 0;
+  daysEl.addEventListener("click", function (e) {
+    var row = e.target.closest(".dayrow");
+    if (!row) return;
+    row.setAttribute("aria-pressed", row.getAttribute("aria-pressed") === "true" ? "false" : "true");
+    daysNext.disabled = picked("days", ".dayrow").length === 0;
   });
-  wireChips(document.getElementById("times"));
-  wireChips(document.getElementById("vibes"));
 
-  function picked(id) {
+  document.getElementById("vibes").addEventListener("click", function (e) {
+    var chip = e.target.closest(".chip");
+    if (!chip) return;
+    chip.setAttribute("aria-pressed", chip.getAttribute("aria-pressed") === "true" ? "false" : "true");
+  });
+
+  function picked(id, sel) {
     return Array.prototype.map.call(
-      document.querySelectorAll("#" + id + ' .chip[aria-pressed="true"]'),
+      document.querySelectorAll("#" + id + " " + (sel || ".chip") + '[aria-pressed="true"]'),
       function (c) { return c.dataset.val; }
     );
   }
@@ -713,17 +754,14 @@
   }
 
   function compose() {
-    var days = picked("days");
-    var name = dateName;
-    var times = picked("times");
-    var vibes = picked("vibes");
+    var days = picked("days", ".dayrow");
+    var vibes = picked("vibes", ".chip");
     var msg = document.getElementById("msg").value.trim();
 
     var out = "Hej Isak! 💌\n";
     out += "JA, jag vill gå ut med dig. ";
-    out += (name ? "Det är " + name + " — jag" : "Jag") + " är ledig " + (days.length ? listSv(days) : "…") + ".";
-    if (times.length) out += "\nBäst för mig: " + listSv(times) + ".";
-    if (vibes.length) out += "\nJag är sugen på " + listSv(vibes) + ".";
+    out += (dateName ? "Det är " + dateName + " — jag" : "Jag") + " är ledig " + (days.length ? listSv(days) : "…") + ".";
+    if (vibes.length) out += "\nJag föredrar " + listSv(vibes) + ".";
     if (msg) out += "\n\n" + msg;
     return out;
   }
@@ -754,11 +792,11 @@
     }
   }
 
-  document.getElementById("send").addEventListener("click", function () {
+  document.getElementById("copy").addEventListener("click", function () {
     var text = compose();
     if (navigator.share) {
       navigator.share({ text: text }).then(function () {
-        toast("Skickat! Nu är bollen hos Isak 🥂");
+        toast("Skickat! 🥂");
       }).catch(function (err) {
         if (err && err.name === "AbortError") return;
         copyText(text, "Kopierat! Klistra in i chatten med Isak 💬");
@@ -766,10 +804,6 @@
     } else {
       copyText(text, "Kopierat! Klistra in i chatten med Isak 💬");
     }
-  });
-
-  document.getElementById("copy").addEventListener("click", function () {
-    copyText(compose(), "Kopierat! Klistra in i chatten med Isak 💬");
   });
 
   show(0);
